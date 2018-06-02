@@ -60,6 +60,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
     try{
         result = eval(fcontent)
     }catch(e){
+        fs.writeFileSync('./log/'+fid+'.log', fcontent);
         console.error('error:', realpath)
         //throw e;
     }
