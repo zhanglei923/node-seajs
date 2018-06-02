@@ -26,8 +26,10 @@ global.cmd_require = (fpath) => {
         realpath = pathutil.resolve(seaRootFolder, fpath);
     }
     currentFilePath = realpath;
+    var oldCurrentFilePath = currentFilePath;
     
-    realpath += '.js'
+    if(!/\.js$/.test(fpath))realpath += '.js';
+
     realpath = realpath.replace(/\\/ig, '/');
     var fid = realpath.replace(/\//ig, '~')
                         .replace(/\./ig, '~')
@@ -49,6 +51,7 @@ global.cmd_require = (fpath) => {
         result,
         evaled: false
     };
+    currentFilePath = oldCurrentFilePath;
     return result;
 }
 global.cmd_module = {};
