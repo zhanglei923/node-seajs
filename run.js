@@ -21,7 +21,7 @@ global.cmd_define = (func) => {
     }
 }
 global.cmd_require = (ownerrealpath, fpath) => {
-    console.log('-require', fpath)
+    //console.log('-require', fpath)
     var ori_requirepath = fpath;
     var ownerfolder = pathutil.parse(ownerrealpath).dir;
     var realpath;
@@ -38,7 +38,19 @@ global.cmd_require = (ownerrealpath, fpath) => {
         //console.log(seaRootFolder, fpath, ownerrealpath)
         realpath = pathutil.resolve(seaRootFolder, fpath);
     }
-    if(!/\.js$/.test(fpath))realpath += '.js';
+    var isTpl = false;
+    var isCss = false;
+    var isJs = false;
+    if(/\.tpl$/ig.test(fpath)){
+        isTpl = true
+    }else if(/\.css$/ig.test(fpath)){
+        isCss = true;
+    }else if(!/\.js$/.test(fpath)){
+        isJs = true;
+        realpath += '.js';
+    }else{
+        isJs = true;
+    }
 
     realpath = realpath.replace(/\\/ig, '/');
     var fid = realpath.replace(/\//ig, '~')
@@ -46,7 +58,17 @@ global.cmd_require = (ownerrealpath, fpath) => {
                         .replace(/\\/ig, '~')
                         .replace(/\:/ig, '~')
     if(requireMap[fid]) return requireMap[fid].result;
-    console.log('-read', ori_requirepath, realpath)
+    if(isTpl){
+        var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
+        requireMap[fid] = {
+            realpath,
+            result: fcontent,
+            evaled: false
+        };
+        return fcontent;
+    }
+    if(isCss) return;
+    //console.log('-read', ori_requirepath, realpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
                         .replace(/\brequire\b\s{0,}\(\s{0,}\'/ig, `global_cmd_require("${realpath}", '`)
@@ -58,7 +80,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
     //console.log(' realpath', fid, realpath)
     var result;
     try{
-        result = eval(fcontent)
+        eval('result = '+fcontent)
     }catch(e){
         fs.writeFileSync('./log/'+fid+'.log', fcontent);
         console.error('error:', realpath)
@@ -67,7 +89,6 @@ global.cmd_require = (ownerrealpath, fpath) => {
     result = global.cmd_module.exports ? global.cmd_module.exports : result;
     requireMap[fid] = {
         realpath,
-        //fcontent,
         result,
         evaled: false
     };
