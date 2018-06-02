@@ -3,6 +3,9 @@ const pathutil = require('path')
 
 var prjPath = pathutil.resolve(__dirname, './');
 var srcPath = pathutil.resolve(prjPath, './cmdCode/');
+
+var seaRootPath = srcPath;
+var currentFolder = seaRootPath;
 console.log('srcPath', srcPath)
 
 let requireMap = {}
@@ -15,7 +18,13 @@ global.cmd_define = (func) => {
 
 global.cmd_require = (fpath) => {
     console.log('-require', fpath)
-    var realpath = pathutil.resolve(srcPath, fpath);
+    var realpath;
+    if(/^\./.test(fpath)) {
+        realpath = pathutil.resolve(currentFolder, fpath);
+    }else{
+        realpath = pathutil.resolve(seaRootPath, fpath);
+    }
+    
     realpath += '.js'
     realpath = realpath.replace(/\\/ig, '/');
     var fid = realpath.replace(/\//ig, '~')
