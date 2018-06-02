@@ -23,7 +23,13 @@ global.cmd_require = (ownerrealpath, fpath) => {
     var realpath;
     if(/^\./.test(fpath)) {
         realpath = pathutil.resolve(ownerfolder, fpath);
-    }else{
+    }else if(/\{/g.test(fpath)){
+        fpath = fpath.replace(/\{\w{1,}\}/g, (a,b)=>{
+            a = a.replace(/\{/g,'').replace(/\}/g,'')
+            return seaConfig.vars[a];
+        })
+    }
+    else {
         if(seaConfig.alias[fpath]) fpath = seaConfig.alias[fpath];
         console.log(seaRootFolder, fpath, ownerrealpath)
         realpath = pathutil.resolve(seaRootFolder, fpath);
@@ -50,7 +56,13 @@ global.cmd_require = (ownerrealpath, fpath) => {
                         //.replace(/\bexports\b/ig, 'global_cmd_exports')
 //replace(/\bmodule\b/ig, 'global_cmd_module')
     //console.log(' realpath', fid, realpath)
-    var result = eval(fcontent)
+    var result;
+    try{
+        result = eval(fcontent)
+    }catch(e){
+        console.error('error:', realpath)
+        throw e;
+    }
     result = global.cmd_module.exports ? global.cmd_module.exports : result;
     requireMap[fid] = {
         realpath,

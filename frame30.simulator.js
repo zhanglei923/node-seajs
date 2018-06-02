@@ -1,4 +1,6 @@
-var _ = require('lodash')
+global._ = require('lodash')
+var moment = require('moment')
+var momenttz = require('moment-timezone')
 global.jQuery= require('jquery')
 global.window = require('window')
 global.window = _.assignIn(global.window, global)
@@ -6,8 +8,25 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
 global.window.document = dom.window.document;
+global.document = dom.window.document;
 //console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
-global.window.location = {
+global.seajs = {
+    data:{}
+}
+global.template = ()=>{
+
+}
+global.template.helper = ()=>{
+
+}
+global.platform = require('platform')
+global.moment = function(){
+    var args = Array.prototype.slice.call(arguments);
+    var mom = moment.apply(moment, args);
+    mom.tz = momenttz;
+    return mom;
+}
+global.location = global.window.location = {
     hash:'',
     host:'',
     hostname:'',
@@ -20,14 +39,21 @@ global.window.location = {
     reload:()=>{},
     replace:()=>{},
 }
+global.navigator = {
+    userAgent:'',
+    platform:''
+}
 global.$ = (obj)=>{
+    if(typeof obj !== 'object') obj = global.window;
     let obj2 = jQuery(obj);
     obj2.on = ()=>{return jQuery(global.window)}
     obj2.off = ()=>{return jQuery(global.window)}
     obj2.delegate = ()=>{return jQuery(global.window)}
+    obj2.unload = ()=>{return jQuery(global.window)}
     return obj2;
 }
-global.$.extend = ()=>{}
+global.$.extend = _.extend;
+global.$.i18n = ()=>{return '';}
 
 global.BWEUM = {
     info: {
