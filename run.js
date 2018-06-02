@@ -1,11 +1,12 @@
 const fs = require('fs')
 const pathutil = require('path')
 
-var prjPath = pathutil.resolve(__dirname, './');
-var srcPath = pathutil.resolve(prjPath, './cmdCode/');
+require('./frame30.simulator')
+var seaConfig = require('./sea-config')
 
-var seaRootFolder = srcPath;
-var currentFolder = seaRootFolder;
+var srcPath;
+
+var seaRootFolder;
 //console.log('srcPath', srcPath)
 
 let requireMap = {}
@@ -15,20 +16,23 @@ global.cmd_define = (func) => {
     //console.log('-call define!')
     func.call(global, global.cmd_require, global.cmd_exports, global.cmd_module);
 }
-var currentFilePath;
-global.cmd_require = (fpath) => {
+global.ownerFilePath;
+global.cmd_require = (ownerrealpath, fpath) => {
     //console.log('-require', fpath)
+    var ownerfolder = pathutil.parse(ownerrealpath).dir;
     var realpath;
     if(/^\./.test(fpath)) {
-        var currentFolder = pathutil.parse(currentFilePath).dir;
-        realpath = pathutil.resolve(currentFolder, fpath);
+        realpath = pathutil.resolve(ownerfolder, fpath);
     }else{
+        if(seaConfig.alias[fpath]) fpath = seaConfig.alias[fpath];
+        console.log(seaRootFolder, fpath, ownerrealpath)
         realpath = pathutil.resolve(seaRootFolder, fpath);
     }
-    currentFilePath = realpath;
-    var oldCurrentFilePath = currentFilePath;
-    
     if(!/\.js$/.test(fpath))realpath += '.js';
+    ownerFilePath = realpath;
+    var oldownerFilePath = ownerFilePath;
+    
+    
 
     realpath = realpath.replace(/\\/ig, '/');
     var fid = realpath.replace(/\//ig, '~')
@@ -39,7 +43,10 @@ global.cmd_require = (fpath) => {
     //console.log('-read', realpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
-                        .replace(/\brequire\b/ig, 'global_cmd_require')
+                        .replace(/\brequire\b\s{0,}\(\s{0,}\'/ig, `global_cmd_require("${realpath}", '`)
+                        .replace(/\brequire\b\s{0,}\(\s{0,}\"/ig, `global_cmd_require("${realpath}", "`)
+
+    //console.log(fcontent)
                         //.replace(/\bexports\b/ig, 'global_cmd_exports')
 //replace(/\bmodule\b/ig, 'global_cmd_module')
     //console.log(' realpath', fid, realpath)
@@ -51,13 +58,20 @@ global.cmd_require = (fpath) => {
         result,
         evaled: false
     };
-    currentFilePath = oldCurrentFilePath;
+    ownerFilePath = oldownerFilePath;
+    console.log('ownerFilePath', ownerFilePath)
     return result;
 }
 global.cmd_module = {};
 global.global_cmd_require = global.cmd_require;
 let runCmd = () =>{
-    currentFilePath = pathutil.resolve(seaRootFolder, './a') + '.js'
-    cmd_require('./a')
+    srcPath = 'E:/workspaces/rkhd/source/'
+
+    seaRootFolder = srcPath;
+    //ownerFilePath = seaConfig.sourceRoot;
+    //ownerFilePath = pathutil.resolve(seaRootFolder, './a') + '.js'
+    ownerFilePath = srcPath + '/test/test.js'
+    cmd_require(pathutil.resolve(srcPath, './test/test.js'), 'test/test')
+
 }
 runCmd();

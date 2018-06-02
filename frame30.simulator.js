@@ -23,8 +23,11 @@ global.window.location = {
 global.$ = (obj)=>{
     let obj2 = jQuery(obj);
     obj2.on = ()=>{return jQuery(global.window)}
+    obj2.off = ()=>{return jQuery(global.window)}
+    obj2.delegate = ()=>{return jQuery(global.window)}
     return obj2;
 }
+global.$.extend = ()=>{}
 
 global.BWEUM = {
     info: {
@@ -45,7 +48,7 @@ global.RKHD = true;
 global.WANXUE =  false;
 global.FUGUODATONG =  false;
 global.YiXueJiaoYu =  false;
-global.DEFAULTS = {
+global.DEFAULTS = window.DEFAULTS = {
 USER_DEFAULT_ICON: 'https://rs-gray.ingageapp.com/static/img/default_face.png',
 TENANT_DEFULT_ICON: 'https://rs-gray.ingageapp.com/static/img/v3.0/logo.png',
 TENANT_CUSTOM_ICON: ''
@@ -53,7 +56,7 @@ TENANT_CUSTOM_ICON: ''
 
 
 
-global.SESSION = {
+global.SESSION = window.SESSION = {
 prj: 'web',
 isDev: false,
 user: {"id":273709,"icon":"https://xsybucket.s3.cn-north-1.amazonaws.com.cn/102/2016/12/10/e0172328-1862-45eb-8415-f2b4bd22273a.jpg","name":"张磊","notify":1,"language-code":"en","language":"en","type":0},
