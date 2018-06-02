@@ -5,13 +5,14 @@ var prjPath = pathutil.resolve(__dirname, './');
 var srcPath = pathutil.resolve(prjPath, './cmdCode/');
 console.log('srcPath', srcPath)
 
-cmdFuncMap = {}
+let requireMap = {}
+let requireList = []
 
 let exec = ()=>{
-    for(var fid in cmdFuncMap){
-        var fobj = cmdFuncMap[fid]
+    for(var fid in requireMap){
+        var fobj = requireMap[fid]
         if(!fobj.evaled){
-            console.log('-DO-eval:', fid)
+            console.log('-eval:', fid)
             var result = eval(fobj.fcontent)
             fobj.evaled = true;
             console.log(result)
@@ -24,7 +25,7 @@ global.cmd_define = (func) => {
 }
 
 global.cmd_require = (fpath) => {
-    console.log('-ask require', fpath)
+    console.log('-require', fpath)
     var realpath = pathutil.resolve(srcPath, fpath);
     realpath += '.js'
     realpath = realpath.replace(/\\/ig, '/');
@@ -32,21 +33,21 @@ global.cmd_require = (fpath) => {
                         .replace(/\./ig, '~')
                         .replace(/\\/ig, '~')
                         .replace(/\:/ig, '~')
-    if(cmdFuncMap[fid]) return;
-    console.log('-DO require', fpath)
+    if(requireMap[fid]) return;
+    console.log('-read', fpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
                         .replace(/\brequire\b/ig, 'global_cmd_require')
                         .replace(/\bexports\b/ig, 'global_cmd_exports')
                         .replace(/\bmodule\b/ig, 'global_cmd_module')
-    console.log('-fid', fid)
-    console.log('-fpath', realpath)
-    cmdFuncMap[fid] = {
+    console.log(' fpath', fid, realpath)
+    requireMap[fid] = {
         realpath,
         fcontent,
         evaled: false
     };
-    exec()
+    var result = eval(fcontent)
+    //exec()
 }
 global.cmd_module = {
 
