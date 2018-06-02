@@ -3,7 +3,12 @@ define(function(require, exports, module) {
 
     var obj = require('./b')
 
-    console.log('   >in a2', obj)
+    obj.c = 100;
+
+    var obj2 = require('./b')
+
+
+    console.log('   >in a2', obj2)
 
     return {
         init: function(rkContent, id) {

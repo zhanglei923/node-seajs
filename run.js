@@ -8,17 +8,6 @@ console.log('srcPath', srcPath)
 let requireMap = {}
 let requireList = []
 
-let exec = ()=>{
-    for(var fid in requireMap){
-        var fobj = requireMap[fid]
-        if(!fobj.evaled){
-            console.log('-eval:', fid)
-            var result = eval(fobj.fcontent)
-            fobj.evaled = true;
-            console.log(result)
-        }
-    }
-}
 global.cmd_define = (func) => {
     console.log('-call define!')
     func.call(global, global.cmd_require, global.cmd_exports, global.cmd_module);
@@ -33,7 +22,7 @@ global.cmd_require = (fpath) => {
                         .replace(/\./ig, '~')
                         .replace(/\\/ig, '~')
                         .replace(/\:/ig, '~')
-    if(requireMap[fid]) return;
+    if(requireMap[fid]) return requireMap[fid].result;
     console.log('-read', fpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
