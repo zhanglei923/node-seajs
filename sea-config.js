@@ -5,9 +5,9 @@ module.exports = {
     vars: {
         'locale': isBrowser ? SESSION.user.language : '',
         'languageUrl':isBrowser? SESSION.languageUrl:'',
-        'fullcalendarLocale':'SESSION.plugin.locale.fullcalendar',
-        'timepickerLocale': 'SESSION.plugin.locale.timepicker',
-        'ueditorLocale': 'SESSION.plugin.locale.ueditor'
+        'fullcalendarLocale':SESSION.plugin.locale.fullcalendar,
+        'timepickerLocale': SESSION.plugin.locale.timepicker,
+        'ueditorLocale': SESSION.plugin.locale.ueditor
     },
     alias: {
         'rk': 'core/rkloader',

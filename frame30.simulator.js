@@ -137,3 +137,16 @@ currentVersion: '4.6',
 languageUrl:'https://xsybucket.s3.cn-north-1.amazonaws.com.cn/%2F102/FRONT_WEB/en/%2F2018/06/01/e8f18e64-d47f-4036-bd2b-56f36a8334e4.js',
 userTimezoneCfg: '{"resourceKey":"TZ.asiaShanghai","dstOffset":0,"displayName_resourceKey":"China Standard Time","offset":28800000,"timezoneId":"Asia/Shanghai","apiKey":"Asia/Shanghai","effectiveStartTime":0}'
 };
+if(SESSION.user["language-code"] == "zh"){
+    SESSION.user.language = "zh-cn";
+}
+SESSION.plugin = {
+    locale:{
+        datepicker:"en-GB",
+        fullcalendar:"en-gb",
+        jqxwidget:"en",
+        moment:"en",
+        timepicker:"en",
+        ueditor:"en",
+    }
+}
