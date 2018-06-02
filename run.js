@@ -18,18 +18,18 @@ global.cmd_define = (func) => {
 }
 global.ownerFilePath;
 global.cmd_require = (ownerrealpath, fpath) => {
-    //console.log('-require', fpath)
+    console.log('-require', fpath)
     var ownerfolder = pathutil.parse(ownerrealpath).dir;
     var realpath;
-    if(/^\./.test(fpath)) {
-        realpath = pathutil.resolve(ownerfolder, fpath);
-    }else if(/\{/g.test(fpath)){
+    if(/\{/g.test(fpath)){
         fpath = fpath.replace(/\{\w{1,}\}/g, (a,b)=>{
             a = a.replace(/\{/g,'').replace(/\}/g,'')
             return seaConfig.vars[a];
         })
     }
-    else {
+    if(/^\./.test(fpath)) {
+        realpath = pathutil.resolve(ownerfolder, fpath);
+    } else {
         if(seaConfig.alias[fpath]) fpath = seaConfig.alias[fpath];
         console.log(seaRootFolder, fpath, ownerrealpath)
         realpath = pathutil.resolve(seaRootFolder, fpath);
@@ -46,7 +46,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
                         .replace(/\\/ig, '~')
                         .replace(/\:/ig, '~')
     if(requireMap[fid]) return requireMap[fid].result;
-    //console.log('-read', realpath)
+    console.log('-read', realpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
                         .replace(/\brequire\b\s{0,}\(\s{0,}\'/ig, `global_cmd_require("${realpath}", '`)
