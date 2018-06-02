@@ -1,5 +1,5 @@
 var _ = require('lodash')
-global.$= require('jquery')
+global.jQuery= require('jquery')
 global.window = require('window')
 global.window = _.assignIn(global.window, global)
 const jsdom = require("jsdom");
@@ -20,7 +20,11 @@ global.window.location = {
     reload:()=>{},
     replace:()=>{},
 }
-
+global.$ = (obj)=>{
+    let obj2 = jQuery(obj);
+    obj2.on = ()=>{return jQuery(global.window)}
+    return obj2;
+}
 
 global.BWEUM = {
     info: {
