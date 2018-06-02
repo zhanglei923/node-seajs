@@ -50,10 +50,23 @@ global.$ = (obj)=>{
     obj2.off = ()=>{return jQuery(global.window)}
     obj2.delegate = ()=>{return jQuery(global.window)}
     obj2.unload = ()=>{return jQuery(global.window)}
+    obj2.hide = ()=>{return jQuery(global.window)}
+    obj2.show = ()=>{return jQuery(global.window)}
     return obj2;
 }
 global.$.extend = _.extend;
-global.$.i18n = ()=>{return '';}
+global.$.i18n = (arg)=>{
+    var o = (typeof arg === 'undefined')
+    if(o){
+        return {
+            load:()=>{
+                return ''
+            }
+        };
+    }else{
+        return ''
+    }
+}
 
 global.BWEUM = {
     info: {

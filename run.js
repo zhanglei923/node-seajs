@@ -14,11 +14,15 @@ let requireList = []
 
 global.cmd_define = (func) => {
     //console.log('-call define!')
-    func.call(global, global.cmd_require, global.cmd_exports, global.cmd_module);
+    if(typeof func === 'function'){
+        func.call(global, global.cmd_require, global.cmd_exports, global.cmd_module);
+    }else{
+        return func;
+    }
 }
-global.ownerFilePath;
 global.cmd_require = (ownerrealpath, fpath) => {
     console.log('-require', fpath)
+    var ori_requirepath = fpath;
     var ownerfolder = pathutil.parse(ownerrealpath).dir;
     var realpath;
     if(/\{/g.test(fpath)){
@@ -31,14 +35,10 @@ global.cmd_require = (ownerrealpath, fpath) => {
         realpath = pathutil.resolve(ownerfolder, fpath);
     } else {
         if(seaConfig.alias[fpath]) fpath = seaConfig.alias[fpath];
-        console.log(seaRootFolder, fpath, ownerrealpath)
+        //console.log(seaRootFolder, fpath, ownerrealpath)
         realpath = pathutil.resolve(seaRootFolder, fpath);
     }
     if(!/\.js$/.test(fpath))realpath += '.js';
-    ownerFilePath = realpath;
-    var oldownerFilePath = ownerFilePath;
-    
-    
 
     realpath = realpath.replace(/\\/ig, '/');
     var fid = realpath.replace(/\//ig, '~')
@@ -46,7 +46,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
                         .replace(/\\/ig, '~')
                         .replace(/\:/ig, '~')
     if(requireMap[fid]) return requireMap[fid].result;
-    console.log('-read', realpath)
+    console.log('-read', ori_requirepath, realpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
                         .replace(/\brequire\b\s{0,}\(\s{0,}\'/ig, `global_cmd_require("${realpath}", '`)
@@ -61,7 +61,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
         result = eval(fcontent)
     }catch(e){
         console.error('error:', realpath)
-        throw e;
+        //throw e;
     }
     result = global.cmd_module.exports ? global.cmd_module.exports : result;
     requireMap[fid] = {
@@ -70,8 +70,6 @@ global.cmd_require = (ownerrealpath, fpath) => {
         result,
         evaled: false
     };
-    ownerFilePath = oldownerFilePath;
-    console.log('ownerFilePath', ownerFilePath)
     return result;
 }
 global.cmd_module = {};
@@ -80,8 +78,6 @@ let runCmd = () =>{
     srcPath = 'E:/workspaces/rkhd/source/'
 
     seaRootFolder = srcPath;
-    //ownerFilePath = seaConfig.sourceRoot;
-    //ownerFilePath = pathutil.resolve(seaRootFolder, './a') + '.js'
     ownerFilePath = srcPath + '/test/test.js'
     cmd_require(pathutil.resolve(srcPath, './test/test.js'), 'test/test')
 
