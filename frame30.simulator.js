@@ -1,3 +1,6 @@
+
+global.s3_language_resource = {};
+
 global._ = require('lodash')
 var moment = require('moment')
 var momenttz = require('moment-timezone')
@@ -26,6 +29,8 @@ global.moment = function(){
     mom.tz = momenttz;
     return mom;
 }
+global.moment.tz = momenttz;
+global.moment.locale = ()=>{};
 global.location = global.window.location = {
     hash:'',
     host:'',
@@ -52,6 +57,7 @@ global.$ = (obj)=>{
     obj2.unload = ()=>{return jQuery(global.window)}
     obj2.hide = ()=>{return jQuery(global.window)}
     obj2.show = ()=>{return jQuery(global.window)}
+    obj2.each = ()=>{return jQuery(global.window)}
     return obj2;
 }
 global.$.extend = _.extend;
@@ -67,8 +73,16 @@ global.$.i18n = (arg)=>{
         return ''
     }
 }
+global.$.each = ()=>{return jQuery(global.window)}
+global.$.ajax = ()=>{return jQuery(global.window)}
+global.$.datepicker = global.$.timepicker = ()=>{return jQuery(global.window)}
+global.$.datepicker.regional = {}
+global.$.datepicker.setDefaults =()=>{}
 $.i18n.messageStore = {
-    
+    messages:{
+        en:{},
+        'zh-cn':{}
+    }
 }
 
 global.BWEUM = {
@@ -156,13 +170,95 @@ userTimezoneCfg: '{"resourceKey":"TZ.asiaShanghai","dstOffset":0,"displayName_re
 if(SESSION.user["language-code"] == "zh"){
     SESSION.user.language = "zh-cn";
 }
-SESSION.plugin = {
-    locale:{
-        datepicker:"en-GB",
-        fullcalendar:"en-gb",
-        jqxwidget:"en",
-        moment:"en",
-        timepicker:"en",
-        ueditor:"en",
+// SESSION.plugin = {
+//     locale:{
+//         datepicker:"en-GB",
+//         fullcalendar:"en-gb",
+//         jqxwidget:"en",
+//         moment:"en",
+//         timepicker:"en",
+//         ueditor:"en",
+//     }
+// }
+
+
+
+//===================================================
+// rk-config
+//===================================================
+/**
+ * Created by nidongsheng on 2017/10/19.
+ */
+    //语言映射表
+    if(!SESSION.user["language-code"]){
+        SESSION.user["language-code"] = 'zh';
     }
-}
+    var langMap = {
+        moment:{
+            //该翻译code用于设定语言环境，moment的所有国际化信息存储于moment-with-langs.js中
+            zh:'zh-cn', en: 'en', pl: 'pl', ja:'ja', 'zh-TW':'zh-tw',defaultLanguage:'en'
+        },
+        fullcalendar:{
+            //该翻译code用于读取语言文件
+            zh:'zh-cn', en: 'en-gb', pl: 'en-gb', ja:'ja', 'zh-TW':'zh-tw',defaultLanguage:'en-gb'
+        },
+        ueditor:{
+            //该翻译code用于读取语言文件
+            zh:'zh-cn', en: 'en',defaultLanguage:'en'
+        },
+        datepicker:{
+            //该翻译code用于设定语言环境，datepicker的所有国际化信息存储于jquery-ui-i18n.js中
+            zh:'zh-CN', en: 'en-GB', pl: 'pl', ja:'ja', 'zh-TW':'zh-TW',defaultLanguage:'en-GB'
+        },
+        timepicker:{
+            //该翻译code用于读取对应的timepicker语言文件
+            zh:'zh', en: 'en', pl: 'pl', ja:'ja','zh-TW':'zh-tw', defaultLanguage:'en'
+        },
+        jqxwidget:{
+            //该翻译code用于设定语言环境，datepicker的所有国际化信息存储于jquery-lang.js中
+            zh:'zh_cn', en: 'en',  defaultLanguage:'en'
+        }
+    }
+
+
+    //声明第三方组件的语言code
+    SESSION.plugin = {
+        locale : {
+            moment : getPluginsLanguageCode('moment', SESSION.user["language-code"]),
+            datepicker : getPluginsLanguageCode('datepicker', SESSION.user["language-code"]),
+            ueditor : getPluginsLanguageCode('ueditor', SESSION.user["language-code"]),
+            fullcalendar : getPluginsLanguageCode('fullcalendar', SESSION.user["language-code"]),
+            timepicker : getPluginsLanguageCode('timepicker', SESSION.user["language-code"]),
+            jqxwidget : getPluginsLanguageCode('jqxwidget', SESSION.user["language-code"])
+        }
+    };
+
+    /**
+     * 根据系统的语言码读取插件的语言码
+     * @param pluginName 插件名称  'moment'|'fullcalendar'|'ueditor'|'datepicker'|'timepicker'
+     * @param langCode  服务器返回的语言码
+     */
+    function getPluginsLanguageCode(pluginName, langCode){
+        if(!pluginName){
+            console.error("插件名称为空，无法读取插件对应的语言码！");return null;
+        }
+        if(!langCode){
+            console.error("服务器语言码为空，无法读取插件对应的语言码！");return null;
+        }
+
+        if(!(/moment|fullcalendar|ueditor|datepicker|timepicker|jqxwidget/.test(pluginName))){
+            console.error("目前仅支持 'moment'|'fullcalendar'|'ueditor'|'datepicker'|'timepicker'|'jqxwidget'等组件的转码。");
+            return null;
+        }
+
+        var tlang = langMap[pluginName][langCode];
+        if(!tlang){
+            console.error("插件："+pluginName+" 不存在 "+langCode+" 的映射，!!!!请补充该插件的语言文件，并在映射表中补充该映射关系!!!!");
+            tlang = langMap[pluginName]['defaultLanguage'];
+
+            console.log("为了程序继续运行，自动读取该组件语言映射表中默认的语言返回:"+ tlang);
+        }
+
+        return tlang;
+    }
+
