@@ -62,12 +62,17 @@ global.cmd_require = (ownerrealpath, fpath) => {
         var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
         requireMap[fid] = {
             realpath,
-            result: fcontent,
-            evaled: false
+            result: fcontent
         };
         return fcontent;
     }
-    if(isCss) return;
+    if(isCss) {
+        requireMap[fid] = {
+            realpath,
+            result: ''
+        };
+        return;
+    }
     //console.log('-read', ori_requirepath, realpath)
     var fcontent = fs.readFileSync(realpath, {encoding: 'utf-8'})
     fcontent = fcontent.replace(/\bdefine\b/ig, 'global.cmd_define')
@@ -89,8 +94,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
     result = global.cmd_module.exports ? global.cmd_module.exports : result;
     requireMap[fid] = {
         realpath,
-        result,
-        evaled: false
+        result
     };
     return result;
 }

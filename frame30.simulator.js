@@ -67,6 +67,9 @@ global.$.i18n = (arg)=>{
         return ''
     }
 }
+$.i18n.messageStore = {
+    
+}
 
 global.BWEUM = {
     info: {
