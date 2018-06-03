@@ -3,11 +3,7 @@ const pathutil = require('path')
 
 require('./frame30.simulator')
 var seaConfig = require('./sea-config')
-
-var srcPath;
-
 var seaRootFolder;
-//console.log('srcPath', srcPath)
 
 let requireMap = {}
 let requireList = []
@@ -23,7 +19,6 @@ global.cmd_define = (func) => {
 global.cmd_require = (ownerrealpath, fpath) => {
     //console.log('-require', fpath)
     var ori_requirepath = fpath;
-    var ownerfolder = pathutil.parse(ownerrealpath).dir;
     var realpath;
     if(/\{/g.test(fpath)){
         fpath = fpath.replace(/\{\w{1,}\}/g, (a,b)=>{
@@ -32,6 +27,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
         })
     }
     if(/^\./.test(fpath)) {
+        var ownerfolder = pathutil.parse(ownerrealpath).dir;
         realpath = pathutil.resolve(ownerfolder, fpath);
     } else {
         if(seaConfig.alias[fpath]) fpath = seaConfig.alias[fpath];
@@ -89,7 +85,7 @@ global.cmd_require = (ownerrealpath, fpath) => {
     }catch(e){
         fs.writeFileSync('./log/'+fid+'.log', fcontent);
         console.error('error:', realpath)
-        //throw e;
+        throw e;
     }
     result = global.cmd_module.exports ? global.cmd_module.exports : result;
     requireMap[fid] = {
@@ -101,11 +97,15 @@ global.cmd_require = (ownerrealpath, fpath) => {
 global.cmd_module = {};
 global.global_cmd_require = global.cmd_require;
 let runCmd = () =>{
-    srcPath = 'E:/workspaces/rkhd/source/'
+    seaRootFolder = 'E:/workspaces/rkhd/source/';
 
-    seaRootFolder = srcPath;
-    ownerFilePath = srcPath + '/test/test.js'
-    cmd_require(pathutil.resolve(srcPath, './test/test.js'), 'test/test')
+    
+    //'rk', 'page/js/frame/pageMainCtrl', 'oldcrm/js/core/common-crm'
+
+    cmd_require(null, 'rk')
+    cmd_require(null, 'page/js/frame/pageMainCtrl')
+    cmd_require(null, 'oldcrm/js/core/common-crm')
+    cmd_require(pathutil.resolve(seaRootFolder, './test/test.js'), 'test/test')
 
 }
 runCmd();
